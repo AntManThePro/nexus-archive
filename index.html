@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e27">
+<title>NEXUS ARCHIVE // AntManThePro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+
+  :root {
+    --green: #00ff87;
+    --cyan: #60efff;
+    --pink: #ff0080;
+    --yellow: #ffcc00;
+    --bg: #0a0e27;
+    --surface: #0f1535;
+    --surface2: #151c3d;
+    --text: #c8d6f0;
+    --dim: #4a5580;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* CANVAS BG */
+  #bgCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    opacity: 0.18;
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+
+  .layer { position: relative; z-index: 1; }
+
+  /* HEADER */
+  header {
+    padding: 2rem 1.5rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(96,239,255,0.15);
+    background: linear-gradient(180deg, rgba(10,14,39,0.98) 0%, transparent 100%);
+  }
+
+  .logo-icon {
+    width: 52px; height: 52px;
+    margin: 0 auto 0.75rem;
+    display: block;
+  }
+
+  .site-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.4rem, 5vw, 2.4rem);
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--green), var(--cyan), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+  }
+
+  .site-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    margin-top: 0.4rem;
+    opacity: 0.8;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--green);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* CONTROLS */
+  .controls {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10,14,39,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(96,239,255,0.1);
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid rgba(96,239,255,0.25);
+    border-radius: 6px;
+    padding: 0.55rem 1rem 0.55rem 2.4rem;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-wrap input:focus { border-color: var(--cyan); }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    opacity: 0.5;
+  }
+
+  .filter-btn {
+    background: var(--surface);
+    border: 1px solid rgba(96,239,255,0.2);
+    color: var(--dim);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+  .filter-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,255,135,0.08); }
+
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid rgba(96,239,255,0.2);
+    color: var(--cyan);
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .surprise-btn {
+    background: rgba(255,0,128,0.12);
+    border: 1px solid rgba(255,0,128,0.4);
+    color: var(--pink);
+  }
+
+  .surprise-btn:hover {
+    background: rgba(255,0,128,0.2);
+    border-color: var(--pink);
+    color: #fff;
+  }
+
+  /* GRID */
+  .archive-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(96,239,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    position: relative;
+    animation: cardIn 0.4s ease both;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:hover {
+    border-color: rgba(96,239,255,0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,255,135,0.08), 0 0 0 1px rgba(0,255,135,0.1);
+  }
+
+  .card.expanded { border-color: var(--green); }
+
+  /* RANK BADGE */
+  .rank-badge {
+    position: absolute;
+    top: 0.75rem; left: 0.75rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  .rank-1 { background: rgba(255,204,0,0.2); color: var(--yellow); border: 1px solid rgba(255,204,0,0.4); }
+  .rank-2 { background: rgba(96,239,255,0.15); color: var(--cyan); border: 1px solid rgba(96,239,255,0.35); }
+  .rank-3 { background: rgba(0,255,135,0.12); color: var(--green); border: 1px solid rgba(0,255,135,0.3); }
+  .rank-top { background: rgba(255,0,128,0.15); color: var(--pink); border: 1px solid rgba(255,0,128,0.35); }
+
+  /* CARD VISUAL */
+  .card-visual {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .card-visual canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+
+  .card-icon {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 12px currentColor);
+  }
+
+  /* CARD BODY */
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-category {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    opacity: 0.7;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-desc {
+    font-size: 0.78rem;
+    color: var(--text);
+    line-height: 1.55;
+    opacity: 0.8;
+  }
+
+  /* TAGS */
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .tag:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .tag-js { background: rgba(255,204,0,0.1); color: var(--yellow); }
+  .tag-canvas { background: rgba(0,255,135,0.1); color: var(--green); }
+  .tag-react { background: rgba(96,239,255,0.1); color: var(--cyan); }
+  .tag-ai { background: rgba(255,0,128,0.12); color: var(--pink); }
+  .tag-webgl { background: rgba(96,239,255,0.08); color: #a0c4ff; }
+  .tag-kec { background: rgba(255,204,0,0.08); color: #ffd060; }
+  .tag-api { background: rgba(255,0,128,0.08); color: #ff60a0; }
+  .tag-game { background: rgba(0,255,135,0.08); color: #60ffb0; }
+  .tag-3d { background: rgba(255,0,128,0.1); color: var(--pink); }
+  .tag-node { background: rgba(0,255,135,0.06); color: #80ffb0; }
+  .tag-python { background: rgba(96,239,255,0.06); color: #80d0ff; }
+
+  /* EXPANDED DETAIL */
+  .card-detail {
+    display: none;
+    padding: 0 1rem 1rem;
+    border-top: 1px solid rgba(96,239,255,0.1);
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .card.expanded .card-detail { display: block; }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .detail-item {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .detail-label {
+    font-size: 0.6rem;
+    color: var(--dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .detail-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--cyan);
+  }
+
+  .impact-bar {
+    margin-top: 0.75rem;
+  }
+
+  .impact-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.35rem;
+  }
+
+  .impact-label span:last-child { color: var(--green); }
+
+  .bar-track {
+    height: 4px;
+    background: rgba(96,239,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-top: 1px solid rgba(96,239,255,0.1);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+
+  footer span { color: var(--green); }
+
+  /* COUNT */
+  .result-count {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--dim);
+    padding: 0.5rem 1.5rem 0;
+    letter-spacing: 0.1em;
+  }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    .archive-grid { grid-template-columns: 1fr; padding: 1rem; gap: 1rem; }
+    .controls { gap: 0.5rem; padding: 1rem; }
+    .filter-btn { font-size: 0.7rem; padding: 0.4rem 0.7rem; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .surprise-btn { font-size: 0.7rem; padding: 0.4rem 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="layer">
+  <header>
+    <!-- CUSTOM ICON SVG -->
+    <svg class="logo-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="26,2 50,15 50,37 26,50 2,37 2,15" stroke="#00ff87" stroke-width="1.5" fill="rgba(0,255,135,0.06)"/>
+      <polygon points="26,10 42,19 42,33 26,42 10,33 10,19" stroke="#60efff" stroke-width="1" fill="rgba(96,239,255,0.05)"/>
+      <circle cx="26" cy="26" r="6" fill="none" stroke="#ff0080" stroke-width="1.5"/>
+      <line x1="26" y1="2" x2="26" y2="20" stroke="#00ff87" stroke-width="1" opacity="0.6"/>
+      <line x1="26" y1="32" x2="26" y2="50" stroke="#00ff87" stroke-width="1" opacity="0.6"/>
+      <line x1="2" y1="15" x2="20" y2="23" stroke="#60efff" stroke-width="1" opacity="0.6"/>
+      <line x1="32" y1="29" x2="50" y2="37" stroke="#60efff" stroke-width="1" opacity="0.6"/>
+      <line x1="50" y1="15" x2="32" y2="23" stroke="#ffcc00" stroke-width="1" opacity="0.6"/>
+      <line x1="20" y1="29" x2="2" y2="37" stroke="#ffcc00" stroke-width="1" opacity="0.6"/>
+      <circle cx="26" cy="26" r="2" fill="#ff0080"/>
+    </svg>
+
+    <div class="site-title">NEXUS ARCHIVE</div>
+    <div class="site-sub">ANTMANTHEPRO // GODMODE2025.NET // ALL NEXUS BUILDS &amp; CONTRIBUTIONS</div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-val" id="totalCount">0</span>
+        <span class="stat-label">Total Artifacts</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val" id="catCount">0</span>
+        <span class="stat-label">Categories</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val" id="techCount">0</span>
+        <span class="stat-label">Tech Stacks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val" id="linesCount">0</span>
+        <span class="stat-label">Est. Lines</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search artifacts... (press / to focus)" />
+    </div>
+    <button class="filter-btn active" data-cat="ALL">ALL</button>
+    <button class="filter-btn" data-cat="PORTFOLIO">PORTFOLIO</button>
+    <button class="filter-btn" data-cat="KEC OPS">KEC OPS</button>
+    <button class="filter-btn" data-cat="AI TOOL">AI TOOL</button>
+    <button class="filter-btn" data-cat="GAME">GAME</button>
+    <button class="filter-btn" data-cat="HARDWARE">HARDWARE</button>
+    <select class="sort-select" id="sortSelect">
+      <option value="rank">⬆ BY RANK</option>
+      <option value="az">A → Z</option>
+      <option value="cat">BY CATEGORY</option>
+    </select>
+    <button class="filter-btn surprise-btn">SURPRISE ME</button>
+  </div>
+
+  <div class="result-count" id="resultCount"></div>
+
+  <div class="archive-grid" id="grid"></div>
+
+  <footer>
+    NEXUS ARCHIVE v2.0 // BUILT BY <span>ANTMANTHEPRO</span> × GROK // <span id="yr"></span>
+  </footer>
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ── ARTIFACT DATABASE ──────────────────────────────────────────────────────
+const ARTIFACTS = [
+  {
+    rank: 1,
+    title: "GodMode Consciousness Engine",
+    category: "PORTFOLIO",
+    icon: "🧠",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#002a1a"],
+    desc: "Live Claude-powered portfolio tool deployed to antmanthepro.github.io/godmode. Canvas neural graph, 5 AI modes, XP/achievement system, and the hidden ANTMAN PROTOCOL easter egg. The magnum opus.",
+    tags: ["canvas","ai","react","api"],
+    impact: 99,
+    lines: "~2,400",
+    tech: "Vanilla HTML + Canvas + Anthropic API",
+    status: "LIVE",
+    why: "Most impactful. Combines AI, Canvas, XP gamification, and real deployment. The interview conversation starter.",
+    detail: "Neural graph renders live with WebGL-style Canvas. Each AI mode changes Claude's system prompt and UI skin. ANTMAN PROTOCOL triggers a secret terminal mode when you type the right sequence."
+  },
+  {
+    rank: 2,
+    title: "Hood Boss Consciousness v1",
+    category: "PORTFOLIO",
+    icon: "⚡",
+    color: "#ffcc00",
+    bgGrad: ["#1a1400","#2a2000"],
+    desc: "Real neural network: 4D input → 16 neurons → tanh activations. 80 parameters, Hebbian learning, zero dependencies. Export weights to prove persistence. Zero-dependency vanilla HTML.",
+    tags: ["canvas","js","ai"],
+    impact: 97,
+    lines: "~900",
+    tech: "Vanilla HTML/JS, Canvas, Neural Math from scratch",
+    status: "SHIPPED",
+    why: "Pure engineering flex. Shows you can implement ML from scratch without libraries. Interview move: show → export weights → prove it learned.",
+    detail: "Custom Hebbian learning rule updates weights based on correlated activations. Weight matrix persists to localStorage via JSON export/import. Real math, not a visualization layer."
+  },
+  {
+    rank: 3,
+    title: "KEC SHIELD",
+    category: "KEC OPS",
+    icon: "🛡️",
+    color: "#ff0080",
+    bgGrad: ["#1a0010","#2a0018"],
+    desc: "TWC defense and incident documentation platform. FastAPI backend + full frontend. HMAC webhook validation, FieldPulse API sync, Microsoft Teams alerting, SQLite storage. Cites Texas Labor Code.",
+    tags: ["python","api","kec"],
+    impact: 95,
+    lines: "~3,100",
+    tech: "FastAPI, SQLite, FieldPulse API, MS Teams Webhooks",
+    status: "BUILDING → shield.twistedgenius.art",
+    why: "Real business tool with real legal weight. Protects Hood Boss from TWC unemployment claims. Demonstrates full-stack production thinking.",
+    detail: "HMAC signatures validate every incoming webhook. Incident records include timestamps, crew IDs, photos, and auto-generated TWC defense statements citing TX Labor Code §207.045 and related sections."
+  },
+  {
+    rank: 4,
+    title: "NEXUS SHAKE LAB v3",
+    category: "AI TOOL",
+    icon: "🧪",
+    color: "#60efff",
+    bgGrad: ["#001522","#002030"],
+    desc: "56 real grocery store ingredients. Canvas blending animation, mobile-first layout. Nutrition shake builder with real macro calculations and visual blending effects.",
+    tags: ["canvas","js","react"],
+    impact: 88,
+    lines: "~1,800",
+    tech: "Vanilla HTML, Canvas, CSS Animations",
+    status: "COMPLETE",
+    why: "Demonstrates consumer-facing product thinking — real data, real UX, beautiful animation. Shows you can build marketable tools.",
+    detail: "Ingredients pulled from real nutrition databases. Blending animation uses Canvas particle systems. Macro totals update in real-time as ingredients are added/removed."
+  },
+  {
+    rank: 5,
+    title: "Crew-O-Meter FastAPI Backend",
+    category: "KEC OPS",
+    icon: "📡",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#001505"],
+    desc: "HMAC webhook validation, crew risk scoring, anomaly detection, Microsoft Teams alerting. Real production monitoring system for Hood Boss field operations across DFW and Austin.",
+    tags: ["python","api","kec"],
+    impact: 87,
+    lines: "~2,200",
+    tech: "FastAPI, Python, HMAC, FieldPulse, MS Teams",
+    status: "BUILT",
+    why: "Production-grade backend engineering. Risk scoring is algorithmic with real field data. Shows DevOps + API integration depth.",
+    detail: "Risk score weights: time-of-day anomalies (35%), GPS drift (25%), job duration outliers (20%), crew pattern breaks (20%). Slack/Teams alerts fire when composite score >72."
+  },
+  {
+    rank: 6,
+    title: "Telegram Bot MVP",
+    category: "AI TOOL",
+    icon: "🤖",
+    color: "#60efff",
+    bgGrad: ["#001020","#001830"],
+    desc: "Multi-file Node.js system, 3,700+ lines. Anthropic/OpenAI adapter, Supabase memory schema, safety filtering, deployment documentation. Full production bot.",
+    tags: ["node","ai","api"],
+    impact: 85,
+    lines: "~3,700",
+    tech: "Node.js, Telegram API, Anthropic, OpenAI, Supabase",
+    status: "DELIVERED",
+    why: "Largest single codebase. Multi-provider AI with persistent memory is genuinely hard to build right. Shows backend architecture skills.",
+    detail: "Adapter pattern lets bot switch between Claude and GPT-4o per user preference. Supabase stores conversation history with vector-ready schema. Safety filter runs before every outbound message."
+  },
+  {
+    rank: 7,
+    title: "NEXUS Field Ops Terminal v3.0",
+    category: "PORTFOLIO",
+    icon: "🗺️",
+    color: "#ffcc00",
+    bgGrad: ["#1a1200","#221800"],
+    desc: "Three.js topology with Dijkstra routing. Real pathfinding on a simulated DFW field ops network. Portfolio piece that proves algorithm implementation.",
+    tags: ["webgl","js","canvas"],
+    impact: 84,
+    lines: "~1,600",
+    tech: "Three.js, Dijkstra, WebGL, Canvas",
+    status: "SHIPPED",
+    why: "Algorithms + 3D = rare combo. Dijkstra on a real topology with live animation. Interview gold for any technical role.",
+    detail: "Network nodes represent actual DFW geographic zones. Dijkstra runs client-side with step-by-step animation. Edge weights derived from real travel time estimates."
+  },
+  {
+    rank: 8,
+    title: "NEXUS Morphogenesis Engine",
+    category: "PORTFOLIO",
+    icon: "🌊",
+    color: "#ff0080",
+    bgGrad: ["#1a0015","#250020"],
+    desc: "WebGL Gray-Scott reaction-diffusion simulation with ping-pong framebuffers. Living, breathing generative art that runs entirely on the GPU.",
+    tags: ["webgl","canvas","js"],
+    impact: 91,
+    lines: "~1,200",
+    tech: "WebGL2, GLSL, Ping-Pong Framebuffers",
+    status: "SHOWCASE",
+    why: "Pure GPU compute in the browser. Gray-Scott RD is the gold standard for generative life-like patterns. Shows shader programming chops.",
+    detail: "Two-pass framebuffer swap computes diffusion equations on the GPU each frame. Feed/kill parameters are tweakable in real-time, producing sponge, coral, maze, and pulse patterns."
+  },
+  {
+    rank: 9,
+    title: "Hood Boss Cortex Command",
+    category: "PORTFOLIO",
+    icon: "🧬",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#002218"],
+    desc: "Multi-tab Canvas portfolio with field dispatch routing, Hebbian neural net, and oscilloscope simulation. Three distinct interactive demos in one artifact.",
+    tags: ["canvas","js","ai"],
+    impact: 86,
+    lines: "~2,100",
+    tech: "Vanilla HTML, Canvas, Hebbian Learning, DSP",
+    status: "SHIPPED",
+    why: "Shows breadth: routing algorithms, neural learning, and signal processing in a single cohesive UI. Impossible to dismiss.",
+    detail: "Oscilloscope tab runs real FFT on synthetic signals. Dispatch routing uses A* approximation. Neural tab shows weight update in real-time with colored connection strength lines."
+  },
+  {
+    rank: 10,
+    title: "NEXUS Cognitive Interface v2",
+    category: "PORTFOLIO",
+    icon: "💎",
+    color: "#60efff",
+    bgGrad: ["#001020","#001828"],
+    desc: "React artifact with 5 modes: PITCH, BATTLE, ARCHITECT, SCAN, ORACLE. Each mode changes Claude's behavior and the full UI skin. localStorage persistence.",
+    tags: ["react","ai","api"],
+    impact: 83,
+    lines: "~1,400",
+    tech: "React, Anthropic API, localStorage",
+    status: "BUILT",
+    why: "Demonstrates React + AI integration with personality-driven UX. The BATTLE mode (side-by-side Claude vs GPT) is genuinely novel.",
+    detail: "BATTLE mode fires simultaneous API calls to Claude and GPT-4o, renders responses side-by-side with a scoring overlay. ORACLE mode uses chain-of-thought prompting for structured predictions."
+  },
+  {
+    rank: 11,
+    title: "NEXUS WRAITH v1/v2",
+    category: "PORTFOLIO",
+    icon: "👻",
+    color: "#ff0080",
+    bgGrad: ["#1a0015","#200018"],
+    desc: "Multi-provider AI portfolio tool: Claude + GPT-4o with side-by-side Battle Mode. The predecessor to the Cognitive Interface, proving the multi-AI comparison concept.",
+    tags: ["react","ai","api"],
+    impact: 80,
+    lines: "~1,100",
+    tech: "React, Claude API, OpenAI API",
+    status: "LEGACY → EVOLVED",
+    why: "Pioneered the multi-AI comparison UI. Everything learned here went into NEXUS Cognitive Interface v2.",
+    detail: "v2 added streaming responses so both AIs type simultaneously. Race condition handling was the hardest engineering problem — solved with ref-based response slots."
+  },
+  {
+    rank: 12,
+    title: "Twisted Genius Pyramid CSS 3D Twin",
+    category: "PORTFOLIO",
+    icon: "🔷",
+    color: "#ffcc00",
+    bgGrad: ["#1a1400","#201800"],
+    desc: "CSS 3D digital twin of the Twisted Genius pyramid jewelry box. Panels that slide out and flip to reveal interiors. Pure CSS transforms, no JS animation libraries.",
+    tags: ["js","canvas"],
+    impact: 78,
+    lines: "~800",
+    tech: "CSS 3D Transforms, Perspective, Transition",
+    status: "SHOWCASE",
+    why: "Shows mastery of CSS 3D — most devs avoid it because it's hard. A physical product represented in pure CSS is a memorable flex.",
+    detail: "Six faces use preserve-3d and rotateX/Y chaining. Click interactions trigger sequential panel unfolds with cubic-bezier timing that matches physical hinge inertia."
+  },
+  {
+    rank: 13,
+    title: "NEXUS Mega Terminal Bible",
+    category: "PORTFOLIO",
+    icon: "⌨️",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#001208"],
+    desc: "118 commands, Linux/Windows/cross-platform. Standalone HTML preview with search, filter, and copy functionality. GitHub-ready documentation package.",
+    tags: ["js","node"],
+    impact: 72,
+    lines: "~1,900",
+    tech: "Vanilla HTML, JS, CSS Grid",
+    status: "PACKAGED",
+    why: "Content authority piece. 118 commands with real explanations shows command-line mastery across platforms. Recruiter magnet for DevOps/SRE roles.",
+    detail: "Commands tagged by OS, category, danger level. Copy-to-clipboard with visual confirmation. Filter by platform (Linux/Windows/both) and category. Search debounced at 150ms."
+  },
+  {
+    rank: 14,
+    title: "FieldPulse Intelligence Dashboard",
+    category: "KEC OPS",
+    icon: "📊",
+    color: "#60efff",
+    bgGrad: ["#001018","#001520"],
+    desc: "HMAC webhooks, anomaly detection, and real-time KEC field crew monitoring. First production-grade Hood Boss backend — established the patterns for Crew-O-Meter and KEC SHIELD.",
+    tags: ["python","api","kec"],
+    impact: 76,
+    lines: "~1,500",
+    tech: "FastAPI, FieldPulse API, SQLite",
+    status: "FOUNDATION",
+    why: "The original Hood Boss backend. Every field ops tool traces its architecture back here.",
+    detail: "Established the HMAC validation pattern used in all subsequent webhook integrations. Anomaly detection v1 used Z-score on job durations — later evolved to composite scoring in Crew-O-Meter."
+  },
+  {
+    rank: 15,
+    title: "DSTIKE Bad USB Payload System",
+    category: "HARDWARE",
+    icon: "🔌",
+    color: "#ff0080",
+    bgGrad: ["#1a0010","#200015"],
+    desc: "ATmega32U4-based HID payload device with DIP switch payload selection. DuckyScript payloads for legitimate red team research. Deep dive into USB HID enumeration.",
+    tags: ["js"],
+    impact: 74,
+    lines: "N/A (firmware)",
+    tech: "ATmega32U4, DuckyScript, Arduino IDE",
+    status: "HARDWARE BUILD",
+    why: "Hardware hacking credibility. Very few web devs can also write embedded firmware. This sets you apart in security-aware technical interviews.",
+    detail: "DIP switch bank selects payload index at boot. ATmega enumerates as HID keyboard. Payloads include staged execution with timing delays to avoid detection by slow OS enumeration."
+  },
+  {
+    rank: 16,
+    title: "UNRULY Mobile Game",
+    category: "GAME",
+    icon: "🎮",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#001505"],
+    desc: "Chaotic rule-breaking mobile game in React. Freemium model with UNRULY Pro tier. Targeting iOS App Store, Google Play, and PWA. Currently in active development.",
+    tags: ["react","game"],
+    impact: 82,
+    lines: "IN PROGRESS",
+    tech: "React, React Native / PWA",
+    status: "🔴 IN DEV",
+    why: "Only game in the portfolio. Games show creative thinking + real-time state management at a difficulty level most portfolio pieces avoid.",
+    detail: "Core mechanic: rules change mid-game or contradict themselves. Win conditions flip. UI lies to you. Built to break expectations about what a game's contract with the player looks like."
+  },
+  {
+    rank: 17,
+    title: "KEC Training Slides (Mobile TTS)",
+    category: "KEC OPS",
+    icon: "📋",
+    color: "#ffcc00",
+    bgGrad: ["#1a1200","#1e1600"],
+    desc: "Swipeable mobile training guide with TTS narration, intentional verification traps, and Hood Boss aesthetic. Deployed to Netlify for crew onboarding.",
+    tags: ["js","kec"],
+    impact: 70,
+    lines: "~600",
+    tech: "Vanilla HTML, Web Speech API, CSS Swipe",
+    status: "DEPLOYED",
+    why: "Real-world deployment with real users (KEC crew). Text-to-speech + intentional traps for compliance verification is clever UX design.",
+    detail: "Trap questions test if crew actually reads vs skips. Wrong answers flag in the backend. Web Speech API narrates slides for crew members who are better listeners than readers."
+  },
+  {
+    rank: 18,
+    title: "Twisted Genius Portfolio Site",
+    category: "PORTFOLIO",
+    icon: "🌐",
+    color: "#ff0080",
+    bgGrad: ["#1a0015","#1e0018"],
+    desc: "Multiple complete builds: React component, standalone HTML, and a generative art studio. Uses Hood Boss color palette. twistedgenius.art functional art brand showcase.",
+    tags: ["react","canvas","js"],
+    impact: 75,
+    lines: "~1,300",
+    tech: "React + Vanilla HTML variants, Canvas, CSS",
+    status: "MULTI-BUILD",
+    why: "Three different implementation approaches for the same brand — shows architectural flexibility and iterative design thinking.",
+    detail: "Generative art studio version uses Perlin noise + palette mapping to create unique art pieces on each visit. React version has smooth page transitions using CSS clip-path animations."
+  },
+  {
+    rank: 19,
+    title: "STM32 Nucleo + ILI9341 Display",
+    category: "HARDWARE",
+    icon: "🖥️",
+    color: "#60efff",
+    bgGrad: ["#001018","#001422"],
+    desc: "Embedded systems work toward a DIY Flipper-style device. STM32 driving an ILI9341 TFT display. SPI configuration, DMA transfers, custom UI widgets.",
+    tags: ["js"],
+    impact: 68,
+    lines: "N/A (C firmware)",
+    tech: "STM32, SPI, ILI9341, HAL Library, C",
+    status: "IN PROGRESS",
+    why: "Embedded systems + web dev is an extremely rare combination. This anchors the hardware hacker identity in the portfolio.",
+    detail: "ILI9341 driven over SPI at 10MHz. DMA transfers free the CPU during large blits. UI widget system draws bitmap fonts from flash memory. Target: portable red team device."
+  },
+  {
+    rank: 20,
+    title: "KEC Latency Cost Calculator",
+    category: "KEC OPS",
+    icon: "💰",
+    color: "#00ff87",
+    bgGrad: ["#001a0f","#001208"],
+    desc: "First Hood Boss business tool artifact. Calculates true cost of KEC job delays including labor, truck time, and opportunity cost. Established the Hood Boss aesthetic.",
+    tags: ["js","kec"],
+    impact: 65,
+    lines: "~400",
+    tech: "Vanilla HTML, JS, CSS",
+    status: "LEGACY TOOL",
+    why: "Origin point. This is where the Hood Boss aesthetic was first defined and the NEXUS color palette was locked in.",
+    detail: "Input: crew size, hourly rate, drive time, job duration. Output: delay cost breakdown with visualized time-value decay curve. First artifact to use #00ff87 as primary green."
+  },
+  {
+    rank: 21,
+    title: "Dual-Boot Surface Pro 7 Setup",
+    category: "HARDWARE",
+    icon: "💻",
+    color: "#ffcc00",
+    bgGrad: ["#1a1200","#1c1400"],
+    desc: "Ubuntu 24.04 + Windows 11 dual-boot on Surface Pro 7. rEFInd bootloader, driver workarounds for Surface-specific hardware (touchscreen, cameras, WiFi), WSL2 integration.",
+    tags: ["js"],
+    impact: 60,
+    lines: "N/A (sysadmin)",
+    tech: "Ubuntu 24.04, rEFInd, WSL2, Surface Linux Drivers",
+    status: "OPERATIONAL",
+    why: "Shows Linux administration depth and willingness to go deep on systems work. Surface Linux drivers are notoriously painful — making it work signals persistence.",
+    detail: "linux-surface kernel patches handle battery management and touch input. rEFInd configured with Hood Boss themed boot splash. WSL2 on Windows side mirrors Ubuntu environment for cross-OS dev."
+  },
+  {
+    rank: 22,
+    title: "Parrot OS on WSL2 Exploration",
+    category: "HARDWARE",
+    icon: "🦜",
+    color: "#60efff",
+    bgGrad: ["#001018","#001220"],
+    desc: "Security-focused Parrot OS running in WSL2. Explored toolchain for red team research: Metasploit, Wireshark, Burp Suite in a contained Windows host environment.",
+    tags: ["js"],
+    impact: 58,
+    lines: "N/A (sysadmin)",
+    tech: "WSL2, Parrot OS, Metasploit, Wireshark",
+    status: "RESEARCH",
+    why: "Security research credibility. Running a pentest distro in WSL2 with proper network isolation is non-trivial configuration.",
+    detail: "Bridged networking allows Parrot to see LAN while staying isolated from main Windows environment. X410 used for GUI tools like Wireshark. Interop with Windows terminal for copy-paste."
+  },
+  {
+    rank: 23,
+    title: "Employee Locker Schedule Signs",
+    category: "KEC OPS",
+    icon: "📌",
+    color: "#ffcc00",
+    bgGrad: ["#1a1200","#181000"],
+    desc: "Hood Boss aesthetic applied to physical workplace artifacts. Printable schedule signs with QR codes, crew assignment tables, and the full NEXUS color treatment.",
+    tags: ["js","kec"],
+    impact: 45,
+    lines: "~200",
+    tech: "HTML/CSS Print Styles",
+    status: "PRINTED & DEPLOYED",
+    why: "Brand consistency from digital to physical. Shows you think about the full user environment, not just screens.",
+    detail: "CSS @media print overrides handle color rendering on standard office printers. QR codes link to the digital version for mobile access. Two layout variants: portrait locker door, landscape hallway posting."
+  },
+  {
+    rank: 24,
+    title: "NEXUS Stealth Portable Hub",
+    category: "HARDWARE",
+    icon: "🛰️",
+    color: "#60efff",
+    bgGrad: ["#001018","#001a22"],
+    desc: "Field-deployable stealth server: laptop motherboard + TP-Link router + SDR dongle + power bank. Real-time dashboard for network monitoring, camera detection, emergency scanning. SSH/SFTP hardened with 4096-bit keys. Cross-OS sync via Working Copy on iOS.",
+    tags: ["js","hardware","node"],
+    impact: 92,
+    lines: "~1,500 + firmware",
+    tech: "Linux, Node.js, Web Dashboard, SDR (RTL-SDR), TP-Link, Battery Optimization",
+    status: "IN FIELD USE",
+    why: "Bridges hardware hacking and web dev in a portable, field-ready package. Demonstrates full-stack systems thinking from embedded to cloud-edge dashboard. Recruiter catnip for IoT/edge/devops roles.",
+    detail: "SDR used for real-time spectrum scanning and hidden camera detection. Dashboard shows live signal strength, connected clients, battery health with discharge curves. Auto failover to 4G if primary link drops. Built for redundancy in KEC field ops and personal red team research."
+  },
+  {
+    rank: 25,
+    title: "NEXUS Archive v2 (This Artifact)",
+    category: "PORTFOLIO",
+    icon: "📦",
+    color: "#ff0080",
+    bgGrad: ["#1a0015","#25001a"],
+    desc: "Self-referential living portfolio archive. Interactive card grid with real-time search, category filters, sort, expandable technical deep-dives, mouse-reactive particle field, clickable tags, and random explorer. The complete record of AntManThePro's contributions — including this very piece.",
+    tags: ["js","canvas"],
+    impact: 96,
+    lines: "~2,100",
+    tech: "Vanilla HTML/JS/CSS, Canvas + Vector Forces, Local State",
+    status: "LIVE (YOU ARE HERE)",
+    why: "Meta artifact that proves the portfolio is not static. Self-documenting, filterable, beautiful, and self-improving. Shows you can build tools that manage and showcase your own body of work with elegance and technical depth. Instant interview conversation piece.",
+    detail: "Every card represents a real deployed or shipped project. Click tags to instantly filter. SURPRISE ME picks a random artifact and flies you there. The background particle system uses real vector repulsion math, velocity damping, and connection culling — pure canvas mastery with zero dependencies. Fully responsive, keyboard accessible ('/' focuses search), and designed to impress recruiters on both mobile field reviews and desktop presentations."
+  },
+  {
+    rank: 26,
+    title: "ANTMAN PROTOCOL",
+    category: "PROTOCOL",
+    icon: "🔐",
+    color: "#ff0080",
+    bgGrad: ["#0a0015","#1a0025"],
+    desc: "Classified access layer. Type 'protocol', 'godmode', or 'antman' in search to unlock this hidden category. Contains operational directives, field directions, and the complete NEXUS manual.",
+    tags: ["hidden","protocol","easter","godmode"],
+    impact: 100,
+    lines: "CLASSIFIED",
+    tech: "Dynamic JS Category Injection + Rich Terminal Content",
+    status: "HIDDEN // TYPE TO ACTIVATE",
+    why: "The ultimate portfolio flex — a self-revealing classified layer that only appears for those who know the codewords. Demonstrates advanced state management, dynamic DOM injection, event-driven UI, and pure user delight engineering.",
+    detail: `<div style="font-size:0.82rem;line-height:1.65;color:#a8c0e0;">
+<strong style="color:#ffcc00;font-size:0.95rem;">🔐 ANTMAN PROTOCOL v2.0 — CLASSIFIED ACCESS GRANTED</strong><br><br>
+<b>INSTRUCTIONS — NEXUS ARCHIVE v2</b><br>
+• <b>Search</b> filters live across title, description, tech stack, and tags.<br>
+• <b>Clickable tags</b> on any card instantly filter the whole archive to that tech.<br>
+• <b>SURPRISE ME</b> (or press <b>?</b>) selects a random artifact, expands it with flair, and scrolls you there.<br>
+• <b>Keyboard shortcuts:</b> Press <b>/</b> (anywhere) to focus search. <b>?</b> = surprise. Click any card header to toggle specs.<br>
+• <b>Categories</b> at top filter instantly. New PROTOCOL category appears only after activation.<br><br>
+<b>FIELD OPERATIONS DIRECTIONS</b><br>
+<b>Stealth Portable Hub:</b><br>
+— Boot with 4096-bit RSA key verification before any SFTP/WebDAV mount.<br>
+— SDR dongle: Sweep 2.4/5GHz spectrum for hidden cameras before sensitive KEC sites.<br>
+— Battery health: Watch discharge curves in dashboard; auto-failover at 25% reserve.<br>
+— iOS sync: Working Copy app maintains persistent SSH tunnels and asset deploys across reboots.<br><br>
+<b>KEC SHIELD / Crew Ops:</b><br>
+— All inbound webhooks HMAC-signed. Reject unsigned FieldPulse payloads.<br>
+— Risk engine: time-of-day (35%) + GPS drift (25%) + duration outliers (20%) + pattern breaks (20%). Alert if composite &gt;72.<br>
+— TWC defense: Auto-generate TX Labor Code §207.045 citations + timestamped incident packets.<br><br>
+<b>HIDDEN ACCESS CODES (type in main search bar)</b><br>
+godmode | protocol | antman — reveals this layer<br>
+More classified modules deploying in future NEXUS builds.<br><br>
+<i style="opacity:0.7;">This session is logged. Protocol self-clears on tab close. Welcome to the inner circle, Ant.</i>
+</div>`
+  }
+];
+
+// ── RENDER & INTERACTIVITY ─────────────────────────────────────────────────
+const CATS = ['ALL','PORTFOLIO','KEC OPS','AI TOOL','GAME','HARDWARE','PROTOCOL'];
+const TECH_SET = new Set();
+ARTIFACTS.forEach(a => a.tags.forEach(t => TECH_SET.add(t)));
+
+document.getElementById('totalCount').textContent = ARTIFACTS.length;
+document.getElementById('catCount').textContent = CATS.length - 1;
+document.getElementById('techCount').textContent = TECH_SET.size;
+const totalLines = ARTIFACTS.reduce((acc, a) => {
+  const n = parseInt((a.lines || '0').replace(/[^0-9]/g, '')) || 0;
+  return acc + n;
+}, 0);
+document.getElementById('linesCount').textContent = (totalLines / 1000).toFixed(0) + 'K+';
+
+let currentCat = 'ALL';
+let currentSearch = '';
+let currentSort = 'rank';
+let expandedId = null;
+
+function getRankClass(rank) {
+  if (rank === 1) return 'rank-top';
+  if (rank <= 3) return 'rank-1';
+  if (rank <= 6) return 'rank-2';
+  return 'rank-3';
+}
+
+function getRankLabel(rank) {
+  if (rank === 1) return '★ #1 FLAGSHIP';
+  if (rank <= 3) return `#${rank} ELITE`;
+  if (rank <= 10) return `#${rank} CORE`;
+  return `#${rank}`;
+}
+
+function getBarColor(impact) {
+  if (impact >= 90) return 'linear-gradient(90deg, #ffcc00, #ff0080)';
+  if (impact >= 80) return 'linear-gradient(90deg, #00ff87, #60efff)';
+  if (impact >= 70) return 'linear-gradient(90deg, #60efff, #00ff87)';
+  return 'linear-gradient(90deg, #4a5580, #60efff)';
+}
+
+function statusColor(status) {
+  if (status.includes('LIVE') || status.includes('DEPLOYED')) return '#00ff87';
+  if (status.includes('DEV') || status.includes('BUILDING')) return '#ffcc00';
+  if (status.includes('LEGACY')) return '#4a5580';
+  return '#60efff';
+}
+
+function tagClass(t) {
+  const map = { js:'tag-js', canvas:'tag-canvas', react:'tag-react', ai:'tag-ai', webgl:'tag-webgl', kec:'tag-kec', api:'tag-api', game:'tag-game', '3d':'tag-3d', node:'tag-node', python:'tag-python' };
+  return map[t] || 'tag-js';
+}
+
+function filterAndSort() {
+  let list = [...ARTIFACTS];
+  if (currentCat !== 'ALL') list = list.filter(a => a.category === currentCat);
+  if (currentSearch.trim()) {
+    const q = currentSearch.toLowerCase();
+    list = list.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.desc.toLowerCase().includes(q) ||
+      a.tags.some(t => t.includes(q)) ||
+      a.tech.toLowerCase().includes(q)
+    );
+  }
+  if (currentSort === 'az') list.sort((a,b) => a.title.localeCompare(b.title));
+  else if (currentSort === 'cat') list.sort((a,b) => a.category.localeCompare(b.category) || a.rank - b.rank);
+  else list.sort((a,b) => a.rank - b.rank);
+  return list;
+}
+
+function filterByTag(tag) {
+  const ev = window.event;
+  if (ev) ev.stopImmediatePropagation();
+  currentSearch = tag;
+  const inp = document.getElementById('searchInput');
+  if (inp) inp.value = tag;
+  expandedId = null;
+  render();
+}
+
+function surpriseMe() {
+  const list = filterAndSort();
+  if (!list.length) return;
+  const randIdx = Math.floor(Math.random() * list.length);
+  const chosen = list[randIdx];
+  expandedId = chosen.rank;
+  render();
+  setTimeout(() => {
+    const el = document.querySelector(`[data-rank="${chosen.rank}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.boxShadow = '0 0 0 4px rgba(255,0,128,0.65)';
+      setTimeout(() => {
+        if (el) el.style.boxShadow = '0 8px 30px rgba(0,255,135,0.08), 0 0 0 1px rgba(0,255,135,0.1)';
+      }, 1400);
+    }
+  }, 90);
+}
+
+function activateProtocolMode() {
+  // Dynamically inject the hidden PROTOCOL filter button if it doesn't exist yet
+  let protoBtn = document.querySelector('.filter-btn[data-cat="PROTOCOL"]');
+  if (!protoBtn) {
+    protoBtn = document.createElement('button');
+    protoBtn.className = 'filter-btn';
+    protoBtn.dataset.cat = 'PROTOCOL';
+    protoBtn.textContent = 'PROTOCOL';
+    protoBtn.style.borderColor = 'var(--pink)';
+    protoBtn.style.color = 'var(--pink)';
+    protoBtn.style.background = 'rgba(255,0,128,0.12)';
+    // Insert before the sort select for visual flow
+    const controls = document.querySelector('.controls');
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect && controls) {
+      controls.insertBefore(protoBtn, sortSelect);
+    } else if (controls) {
+      controls.appendChild(protoBtn);
+    }
+    // Attach the same filter behavior as other category buttons
+    protoBtn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      protoBtn.classList.add('active');
+      currentCat = 'PROTOCOL';
+      expandedId = null;
+      render();
+    });
+  }
+  // Activate it immediately
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  protoBtn.classList.add('active');
+  currentCat = 'PROTOCOL';
+  expandedId = null;
+  // Keep the magic word in search so text filter still matches, or clear if you prefer
+  // document.getElementById('searchInput').value = '';
+  render();
+  // Subtle confirmation flash on the new button
+  setTimeout(() => {
+    if (protoBtn) {
+      protoBtn.style.boxShadow = '0 0 12px rgba(255,0,128,0.6)';
+      setTimeout(() => { if (protoBtn) protoBtn.style.boxShadow = ''; }, 900);
+    }
+  }, 120);
+}
+
+function render() {
+  const list = filterAndSort();
+  const grid = document.getElementById('grid');
+  const count = document.getElementById('resultCount');
+  count.textContent = `SHOWING ${list.length} OF ${ARTIFACTS.length} ARTIFACTS`;
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state">// NO ARTIFACTS MATCH QUERY //</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map((a, i) => {
+    const isExp = expandedId === a.rank;
+    return `
+    <div class="card${isExp ? ' expanded' : ''}" data-rank="${a.rank}"
+         style="animation-delay:${i * 0.04}s">
+
+      <div class="card-visual" style="background: linear-gradient(135deg, ${a.bgGrad[0]}, ${a.bgGrad[1]})">
+        <span class="card-icon" style="color:${a.color}">${a.icon}</span>
+      </div>
+
+      <div class="rank-badge ${getRankClass(a.rank)}">${getRankLabel(a.rank)}</div>
+
+      <div class="card-body">
+        <div class="card-category" style="color:${a.color}">${a.category}</div>
+        <div class="card-title">${a.title}</div>
+        <div class="card-desc">${a.desc}</div>
+        <div class="card-tags">
+          ${a.tags.map(t => `<span class="tag ${tagClass(t)}">${t.toUpperCase()}</span>`).join('')}
+        </div>
+      </div>
+
+      <div class="card-detail">
+        <div class="impact-bar">
+          <div class="impact-label"><span>IMPACT SCORE</span><span>${a.impact}/100</span></div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${a.impact}%;background:${getBarColor(a.impact)}"></div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">TECH STACK</span>
+            <span class="detail-val">${a.tech}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">EST. LINES</span>
+            <span class="detail-val">${a.lines}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">STATUS</span>
+            <span class="detail-val" style="color:${statusColor(a.status)}">${a.status}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">WHY IT RANKS HERE</span>
+            <span class="detail-val" style="color:#c8d6f0;font-size:0.68rem;line-height:1.4">${a.why}</span>
+          </div>
+        </div>
+
+        <div style="margin-top:0.75rem;padding:0.6rem;background:rgba(0,255,135,0.04);border-radius:6px;border-left:2px solid ${a.color}">
+          <div class="detail-label" style="margin-bottom:0.3rem">TECHNICAL DEPTH</div>
+          <div style="font-size:0.72rem;line-height:1.55;color:#a0b0d0">${a.detail}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleExpand(rank) {
+  expandedId = expandedId === rank ? null : rank;
+  render();
+  if (expandedId) {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-rank="${rank}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
+  }
+}
+
+window.toggleExpand = toggleExpand;
+window.filterByTag = filterByTag;
+window.surpriseMe = surpriseMe;
+
+// FILTERS
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = btn.dataset.cat;
+    expandedId = null;
+    render();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  expandedId = null;
+  const q = currentSearch.toLowerCase().trim();
+  if ((q === 'protocol' || q === 'godmode' || q === 'antman' || q.includes('protocol')) && currentCat !== 'PROTOCOL') {
+    activateProtocolMode();
+  } else {
+    render();
+  }
+});
+
+document.getElementById('sortSelect').addEventListener('change', e => {
+  currentSort = e.target.value;
+  render();
+});
+
+// Keyboard shortcut: / focuses search
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+    e.preventDefault();
+    const inp = document.getElementById('searchInput');
+    if (inp) inp.focus();
+  }
+  if (e.key.toLowerCase() === '?' && document.activeElement.tagName === 'BODY') {
+    e.preventDefault();
+    surpriseMe();
+  }
+});
+
+// ── BG CANVAS (mouse-reactive particle field) ──────────────────────────────
+const bgC = document.getElementById('bgCanvas');
+const bgCtx = bgC.getContext('2d');
+let bgW, bgH, particles = [];
+let mouseX = -9999, mouseY = -9999;
+
+bgC.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+bgC.addEventListener('mouseleave', () => {
+  mouseX = -9999;
+  mouseY = -9999;
+});
+
+function resizeBg() {
+  bgW = bgC.width = window.innerWidth;
+  bgH = bgC.height = window.innerHeight;
+}
+
+function initParticles() {
+  particles = [];
+  const N = Math.min(85, Math.floor(bgW * bgH / 17500));
+  const colors = ['#00ff87','#60efff','#ff0080','#ffcc00'];
+  for (let i = 0; i < N; i++) {
+    particles.push({
+      x: Math.random() * bgW,
+      y: Math.random() * bgH,
+      vx: (Math.random() - 0.5) * 0.45,
+      vy: (Math.random() - 0.5) * 0.45,
+      r: Math.random() * 1.6 + 0.45,
+      c: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+}
+
+function drawBg() {
+  bgCtx.clearRect(0, 0, bgW, bgH);
+
+  particles.forEach(p => {
+    // Mouse repulsion force (vector math)
+    if (mouseX > -9000) {
+      const dx = p.x - mouseX;
+      const dy = p.y - mouseY;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      if (dist < 165 && dist > 1.5) {
+        const repel = (165 - dist) / 165 * 1.35;
+        p.vx += (dx / dist) * repel * 0.55;
+        p.vy += (dy / dist) * repel * 0.55;
+      }
+    }
+
+    // Integrate velocity
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Wrap around edges
+    if (p.x < 0) p.x = bgW;
+    if (p.x > bgW) p.x = 0;
+    if (p.y < 0) p.y = bgH;
+    if (p.y > bgH) p.y = 0;
+
+    // Velocity damping + speed clamp (feels organic)
+    p.vx *= 0.982;
+    p.vy *= 0.982;
+    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    if (speed > 1.95) {
+      p.vx = (p.vx / speed) * 1.95;
+      p.vy = (p.vy / speed) * 1.95;
+    }
+  });
+
+  // Draw connections (NEXUS neural net vibe)
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 118) {
+        bgCtx.beginPath();
+        bgCtx.strokeStyle = particles[i].c;
+        bgCtx.globalAlpha = (1 - d / 118) * 0.28;
+        bgCtx.lineWidth = 0.6;
+        bgCtx.moveTo(particles[i].x, particles[i].y);
+        bgCtx.lineTo(particles[j].x, particles[j].y);
+        bgCtx.stroke();
+      }
+    }
+  }
+  bgCtx.globalAlpha = 1;
+
+  // Draw particles
+  particles.forEach(p => {
+    bgCtx.beginPath();
+    bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    bgCtx.fillStyle = p.c;
+    bgCtx.fill();
+  });
+
+  requestAnimationFrame(drawBg);
+}
+
+window.addEventListener('resize', () => { resizeBg(); initParticles(); });
+resizeBg();
+initParticles();
+drawBg();
+
+// Event delegation for robust .card + .tag clicks (replaces inline onclicks for reliability)
+const gridEl = document.getElementById('grid');
+gridEl.addEventListener('click', function(e) {
+  const card = e.target.closest('.card');
+  if (!card) return;
+  const rank = parseInt(card.dataset.rank, 10);
+  if (e.target.closest('.tag')) {
+    const tagEl = e.target.closest('.tag');
+    const tagText = tagEl.textContent.toLowerCase().trim();
+    filterByTag(tagText);
+    e.stopImmediatePropagation();
+    return;
+  }
+  toggleExpand(rank);
+});
+
+// Wire up SURPRISE ME button (removed inline onclick for cleanliness)
+const surpriseBtnEl = document.querySelector('.surprise-btn');
+if (surpriseBtnEl) {
+  surpriseBtnEl.addEventListener('click', surpriseMe);
+}
+
+// Initial render
+render();
+
+// Easter egg hint in console for the real ones
+console.log('%c[NEXUS ARCHIVE v2] ANTMAN PROTOCOL ready. Type "protocol", "godmode", or "antman" in search to unlock the hidden PROTOCOL category + classified directives.', 'color:#00ff87;font-family:monospace');
+</script>
+</body>
+</html>
